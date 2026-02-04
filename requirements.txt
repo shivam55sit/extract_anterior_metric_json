@@ -1,0 +1,14 @@
+streamlit
+opencv-python
+numpy
+pandas
+seaborn
+
+albumentations
+easyocr
+scikit-image
+pillow
+
+
+EasyOCR 
+openpyxl
