@@ -131,18 +131,45 @@ def main():
         if all_results:
             st.divider()
             st.header("Results Summary")
-            
-            # If single image, output a flat dict; otherwise a list
-            output_data = all_results[0] if len(all_results) == 1 else all_results
+            st.caption("✏️ You can edit any value below to correct OCR errors before downloading.")
+
+            edited_results = []
+
+            for idx, result in enumerate(all_results):
+                if len(all_results) > 1:
+                    st.markdown(f"**Image {idx + 1}**")
+
+                cols = st.columns(len(result))
+                edited_entry = {}
+                for col, (key, value) in zip(cols, result.items()):
+                    with col:
+                        edited_val = st.number_input(
+                            label=key,
+                            value=float(value) if value is not None else 0.0,
+                            format="%.1f",
+                            step=0.1,
+                            key=f"edit_{idx}_{key}",
+                        )
+                        edited_entry[key] = edited_val
+                edited_results.append(edited_entry)
+
+                if len(all_results) > 1:
+                    st.divider()
+
+            # Build final output from edited values
+            output_data = edited_results[0] if len(edited_results) == 1 else edited_results
             final_json = json.dumps(output_data)
+
+            # Show a live preview of the final JSON
+            st.markdown("**Final JSON Preview**")
             st.code(final_json, language='json')
-            
+
             # Download Button
             st.download_button(
                 label="📥 Download Extracted Data (JSON)",
                 data=final_json,
                 file_name="cornea_metrics.json",
-                mime="application/json"
+                mime="application/json",
             )
             
             # Cleanup all crop temp files at the end
