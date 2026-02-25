@@ -76,7 +76,7 @@ def main():
         st.divider()
         
         # Results container
-        all_results = {}
+        all_results = []
         
         for uploaded_file in uploaded_files:
             file_name = uploaded_file.name
@@ -113,7 +113,7 @@ def main():
                                 st.markdown("**Extracted Metrics**")
                                 if extracted_data:
                                     st.json(extracted_data)
-                                    all_results[file_name] = extracted_data
+                                    all_results.append(extracted_data)
                                 else:
                                     st.warning("No metrics found in this crop.")
                         else:
@@ -132,8 +132,9 @@ def main():
             st.divider()
             st.header("Results Summary")
             
-            # Final JSON
-            final_json = json.dumps(all_results, indent=2)
+            # If single image, output a flat dict; otherwise a list
+            output_data = all_results[0] if len(all_results) == 1 else all_results
+            final_json = json.dumps(output_data)
             st.code(final_json, language='json')
             
             # Download Button
@@ -145,8 +146,8 @@ def main():
             )
             
             # Cleanup all crop temp files at the end
-            for file_name in all_results.keys():
-                path = f"temp_crop_{file_name}"
+            for uf in uploaded_files:
+                path = f"temp_crop_{uf.name}"
                 if os.path.exists(path):
                     os.remove(path)
 
